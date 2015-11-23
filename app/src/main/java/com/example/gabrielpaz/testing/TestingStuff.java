@@ -2,6 +2,7 @@ package com.example.gabrielpaz.testing;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +30,8 @@ public class TestingStuff extends AppCompatActivity {
     ParseFile Img;
     Button testButton;
     ImageView image;
+    Button rotateButton;
+    float angle = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +51,7 @@ public class TestingStuff extends AppCompatActivity {
         Parse.initialize(this, "MNsckKzXmwFgf2mu7t1PsrZt0oZQKI39uhMeN1de", "WVx1RVB7qnFQP5Rv1YRyh0dcnqL8P8zIiQbmuOmr");
 
         testButton = (Button)findViewById(R.id.testButton);
+        rotateButton = (Button)findViewById(R.id.rotateButton);
         image = (ImageView)findViewById(R.id.imageView);
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,13 +62,13 @@ public class TestingStuff extends AppCompatActivity {
                     public void done(ParseObject object, com.parse.ParseException e) {
                         if (e == null) {
                             Img = object.getParseFile("Image");
-
                             Img.getDataInBackground(new GetDataCallback() {
                                 @Override
                                 public void done(byte[] data, com.parse.ParseException e) {
                                     if (e == null) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
                                         image.setImageBitmap(bitmap);
+
                                     } else {
                                         // something went wrong
                                     }
@@ -78,9 +83,28 @@ public class TestingStuff extends AppCompatActivity {
             }
         });
 
+        rotateButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+              rotate(image);
+            }
+        });
 
     }
 
+    public void rotate(ImageView image){
+
+        angle += 90;
+
+        final RotateAnimation rotateAnim = new RotateAnimation(0.0f, angle,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+
+        rotateAnim.setDuration(0);
+        rotateAnim.setFillAfter(true);
+        image.startAnimation(rotateAnim);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
