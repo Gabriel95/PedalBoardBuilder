@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ public class TestingStuff extends AppCompatActivity {
     ImageView image;
     Button rotateButton;
     float angle = 0;
+    boolean moving = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,13 +85,36 @@ public class TestingStuff extends AppCompatActivity {
             }
         });
 
-        rotateButton.setOnClickListener(new View.OnClickListener(){
+        image.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        moving = true;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (moving) {
+                            image.setX(event.getRawX() - image.getWidth() / 2);
+                            image.setY(event.getRawY() - image.getHeight() / 2);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        moving = false;
+                        break;
+                }
+                return true;
+            }
+        });
+
+        rotateButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-              rotate(image);
+                rotate(image);
             }
         });
+
 
     }
 
