@@ -111,25 +111,14 @@ public class TestingStuff extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                rotate(image);
+                angle += 90;
+                image.setRotation(angle);
             }
         });
 
 
     }
-
-    public void rotate(ImageView image){
-
-        angle += 90;
-
-        final RotateAnimation rotateAnim = new RotateAnimation(0.0f, angle,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
-
-        rotateAnim.setDuration(0);
-        rotateAnim.setFillAfter(true);
-        image.startAnimation(rotateAnim);
-    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
