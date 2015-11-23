@@ -15,9 +15,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.parse.GetCallback;
 import com.parse.GetDataCallback;
 import com.parse.Parse;
@@ -30,10 +30,11 @@ import java.text.ParseException;
 public class TestingStuff extends AppCompatActivity {
     ParseFile Img;
     Button testButton;
-    ImageView image;
     Button rotateButton;
+    ImageView selectedImg;
     float angle = 0;
     boolean moving = true;
+    FrameLayout layout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,20 +42,13 @@ public class TestingStuff extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        Parse.enableLocalDatastore(this);
-        Parse.initialize(this, "MNsckKzXmwFgf2mu7t1PsrZt0oZQKI39uhMeN1de", "WVx1RVB7qnFQP5Rv1YRyh0dcnqL8P8zIiQbmuOmr");
+
+        ParseService.MakeConnection(this);
 
         testButton = (Button)findViewById(R.id.testButton);
         rotateButton = (Button)findViewById(R.id.rotateButton);
-        image = (ImageView)findViewById(R.id.imageView);
+        layout = (FrameLayout)findViewById(R.id.fmlayout);
+
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,24 +62,37 @@ public class TestingStuff extends AppCompatActivity {
                                 @Override
                                 public void done(byte[] data, com.parse.ParseException e) {
                                     if (e == null) {
-                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
-                                        image.setImageBitmap(bitmap);
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                        AddNewPedal(bitmap);
 
-                                    } else {
-                                        // something went wrong
                                     }
                                 }
                             });
-                        }
-                        else {
-
                         }
                     }
                 });
             }
         });
 
-        image.setOnTouchListener(new View.OnTouchListener() {
+        rotateButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                angle += 90;
+                selectedImg.setRotation(angle);
+            }
+        });
+
+
+    }
+
+    public void AddNewPedal(Bitmap bitmap)
+    {
+        final ImageView p = new Pedal(this);
+        p.setImageBitmap(bitmap);
+        p.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT));
+        p.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -95,30 +102,21 @@ public class TestingStuff extends AppCompatActivity {
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (moving) {
-                            image.setX(event.getRawX() - image.getWidth() / 2);
-                            image.setY(event.getRawY() - image.getHeight() / 2);
+                            p.setX(event.getRawX() - p.getWidth());
+                            p.setY(event.getRawY() - p.getHeight());
                         }
                         break;
                     case MotionEvent.ACTION_UP:
                         moving = false;
+                        selectedImg = p;
                         break;
                 }
                 return true;
             }
         });
-
-        rotateButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                angle += 90;
-                image.setRotation(angle);
-            }
-        });
-
-
+        layout.addView(p);
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
