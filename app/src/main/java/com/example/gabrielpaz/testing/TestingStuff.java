@@ -31,6 +31,7 @@ public class TestingStuff extends AppCompatActivity {
     ParseFile Img;
     Button testButton;
     Button rotateButton;
+    Button boardButton;
     ImageView selectedImg;
     float angle = 0;
     boolean moving = true;
@@ -47,6 +48,7 @@ public class TestingStuff extends AppCompatActivity {
 
         testButton = (Button)findViewById(R.id.testButton);
         rotateButton = (Button)findViewById(R.id.rotateButton);
+        boardButton = (Button)findViewById(R.id.boardButton);
         layout = (FrameLayout)findViewById(R.id.fmlayout);
 
         testButton.setOnClickListener(new View.OnClickListener() {
@@ -74,6 +76,30 @@ public class TestingStuff extends AppCompatActivity {
             }
         });
 
+        boardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Board");
+                query.getInBackground("GFipvulrr9", new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, com.parse.ParseException e) {
+                        if (e == null) {
+                            Img = object.getParseFile("Image");
+                            Img.getDataInBackground(new GetDataCallback() {
+                                @Override
+                                public void done(byte[] data, com.parse.ParseException e) {
+                                    if (e == null) {
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                        AddBoard(bitmap);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
         rotateButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -92,6 +118,7 @@ public class TestingStuff extends AppCompatActivity {
         p.setImageBitmap(bitmap);
         p.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
+        p.bringToFront();
         p.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -109,6 +136,7 @@ public class TestingStuff extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         moving = false;
                         selectedImg = p;
+                        p.bringToFront();
                         break;
                 }
                 return true;
@@ -117,6 +145,11 @@ public class TestingStuff extends AppCompatActivity {
         layout.addView(p);
     }
 
+    public void AddBoard(Bitmap bitmap){
+        final ImageView p = new Pedal(this);
+        p.setImageBitmap(bitmap);
+        layout.addView(p);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
