@@ -33,6 +33,7 @@ public class TestingStuff extends AppCompatActivity {
     Button rotateButton;
     Button boardButton;
     ImageView selectedImg;
+    ImageView Board;
     float angle = 0;
     boolean moving = true;
     FrameLayout layout;
@@ -55,17 +56,19 @@ public class TestingStuff extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Pedals");
-                query.getInBackground("OOczVPc67W", new GetCallback<ParseObject>() {
+                query.getInBackground("pRNQEu9S08", new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, com.parse.ParseException e) {
                         if (e == null) {
                             Img = object.getParseFile("Image");
+                            final float w = object.getInt("Width");
+                            final float h = object.getInt("Height");
                             Img.getDataInBackground(new GetDataCallback() {
                                 @Override
                                 public void done(byte[] data, com.parse.ParseException e) {
                                     if (e == null) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                        AddNewPedal(bitmap);
+                                        AddNewPedal(bitmap,w,h);
 
                                     }
                                 }
@@ -85,12 +88,14 @@ public class TestingStuff extends AppCompatActivity {
                     public void done(ParseObject object, com.parse.ParseException e) {
                         if (e == null) {
                             Img = object.getParseFile("Image");
+                            final float w = object.getInt("Width");
+                            final float h = object.getInt("Height");
                             Img.getDataInBackground(new GetDataCallback() {
                                 @Override
                                 public void done(byte[] data, com.parse.ParseException e) {
                                     if (e == null) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                        AddBoard(bitmap);
+                                        AddBoard(bitmap,w,h);
                                     }
                                 }
                             });
@@ -112,13 +117,29 @@ public class TestingStuff extends AppCompatActivity {
 
     }
 
-    public void AddNewPedal(Bitmap bitmap)
+    public void AddNewPedal(Bitmap bitmap, float w, float h)
     {
         final ImageView p = new Pedal(this);
         p.setImageBitmap(bitmap);
+        ((Pedal)p).PedalWidth = w;
+        ((Pedal)p).PedalHeight = h;
         p.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
         p.bringToFront();
+        p.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        int boardWidth = (int) ((Pedal)Board).PedalWidth;
+        int pedalWidth = (int) ((Pedal)p).PedalWidth;
+
+        int boardHeight = (int) ((Pedal)Board).PedalHeight;
+        int pedalHeight = (int) ((Pedal)p).PedalHeight;
+
+        int wi = getProportion(boardWidth, Board.getWidth(), pedalWidth);
+        int he = getProportion(boardHeight, Board.getHeight(), pedalHeight);
+
+        p.getLayoutParams().width = wi;
+        p.getLayoutParams().height = he;
+
         p.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -145,10 +166,18 @@ public class TestingStuff extends AppCompatActivity {
         layout.addView(p);
     }
 
-    public void AddBoard(Bitmap bitmap){
-        final ImageView p = new Pedal(this);
-        p.setImageBitmap(bitmap);
-        layout.addView(p);
+    public void AddBoard(Bitmap bitmap, float w, float h){
+         Board = new Pedal(this);
+        ((Pedal)Board).PedalWidth = w;
+        ((Pedal)Board).PedalHeight = h;
+        ((Pedal)Board).type = "Board";
+         Board.setImageBitmap(bitmap);
+         layout.addView(Board);
+    }
+
+    public int getProportion(int a, int b, int c)
+    {
+        return (b * c)/a ;
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
